@@ -66,11 +66,11 @@ def load_variable_help() -> Dict[str, str]:
         default_help = {
             "Nationality": "Nationality (USA/China)",
             "Gender": "Gender (0=Female, 1=Male)",
-            "Neck_pain": "Neck pain (0=No, 1=Yes)",
+            "Neck pain": "Neck pain (0=No, 1=Yes)",
             "Arthritis": "Arthritis (0=No, 1=Yes)",
-            "Self_perceived_health_status": "Self perceived health status (1=Poor, 2=Fair, 3=Good)",
-            "Lung_disease": "Lung disease (0=No, 1=Yes)",
-            "Waist_circumference": "Waist circumference (cm)"
+            "Self-perceived health status": "Self perceived health status (1=Poor, 2=Fair, 3=Good)",
+            "Lung disease": "Lung disease (0=No, 1=Yes)",
+            "Waist-circumference": "Waist circumference (cm)"
         }
         return default_help
     
@@ -95,23 +95,23 @@ def load_variable_help() -> Dict[str, str]:
     default_help = {
         "Nationality": "Nationality (USA/China)",
         "Gender": "Gender (0=Female, 1=Male)",
-        "Neck_pain": "Neck pain (0=No, 1=Yes)",
+        "Neck pain": "Neck pain (0=No, 1=Yes)",
         "Arthritis": "Arthritis (0=No, 1=Yes)",
-        "Self_perceived_health_status": "Self perceived health status (1=Poor, 2=Fair, 3=Good)",
-        "Lung_disease": "Lung disease (0=No, 1=Yes)",
-        "Waist_circumference": "Waist circumference (cm)"
+        "Self-perceived health status": "Self perceived health status (1=Poor, 2=Fair, 3=Good)",
+        "Lung disease": "Lung disease (0=No, 1=Yes)",
+        "Waist-circumference": "Waist circumference (cm)"
     }
     return default_help
 
 
 def build_numeric_scaler(x_train_scaled: pd.DataFrame) -> Optional[StandardScaler]:
-    """Create a scaler for Waist_circumference (the only continuous variable).
+    """Create a scaler for Waist-circumference (the only continuous variable).
 
     Priority of sources for mean/std:
     1) data/X_train_notscaled.csv (if present with the expected columns)
     2) Approximate from known ranges using scaled min/max (last resort)
     """
-    target_cols = ["Waist_circumference"]
+    target_cols = ["Waist-circumference"]
 
     # 1) Preferred: explicit unscaled training data
     unscaled_path = DATA_DIR / "X_train_notscaled.csv"
@@ -358,23 +358,23 @@ def main():
                     return options[choice]
 
                 # Inputs - 5 features
-                neck_pain = sb(0, "Neck_pain", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
+                neck_pain = sb(0, "Neck pain", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
                 arthritis = sb(1, "Arthritis", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
                 selfhea = sb(
                     0,
-                    "Self_perceived_health_status",
+                    "Self-perceived health status",
                     {"Poor (1)": 1, "Fair (2)": 2, "Good (3)": 3},
                     "Fair (2)",
                 )
-                lung_disease = sb(1, "Lung_disease", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
+                lung_disease = sb(1, "Lung disease", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
                 
                 waist_circumference_raw = cols[0].number_input(
-                    "Waist_circumference",
+                    "Waist-circumference",
                     min_value=60.0,
                     max_value=170.0,
                     value=105.0,
                     step=0.1,
-                    help=variable_help.get("Waist_circumference", f"Waist circumference (cm), threshold: {threshold} cm"),
+                    help=variable_help.get("Waist-circumference", f"Waist circumference (cm), threshold: {threshold} cm"),
                 )
                 
                 # Add unified comments above the prediction button
@@ -382,15 +382,15 @@ def main():
                 st.markdown("**Variable Definitions:**", help="Click to view detailed explanations")
                 with st.expander("📋 Variable Definitions"):
                     st.markdown(f"""
-                    **Neck_pain**: Do you have neck pain? (0=No, 1=Yes)
+                    **Neck pain**: Do you have neck pain? (0=No, 1=Yes)
                     
                     **Arthritis**: Has a doctor ever told you that you have arthritis? (0=No, 1=Yes)
                     
-                    **Self_perceived_health_status**: How do you rate your overall health? (1=Poor, 2=Fair, 3=Good)
+                    **Self-perceived health status**: How do you rate your overall health? (1=Poor, 2=Fair, 3=Good)
                     
-                    **Lung_disease**: Has a doctor ever told you that you have lung disease? (0=No, 1=Yes)
+                    **Lung disease**: Has a doctor ever told you that you have lung disease? (0=No, 1=Yes)
                     
-                    **Waist_circumference**: Waist circumference measured in centimeters (cm)
+                    **Waist-circumference**: Waist circumference measured in centimeters (cm)
                     - Current threshold: {threshold} cm (based on {nationality} {gender})
                     - Model is designed for individuals with abdominal obesity
                     """)
@@ -417,11 +417,11 @@ def main():
 
         # Prepare the single-row input in the exact feature order
         user_raw: Dict[str, float] = {
-            "Neck_pain": neck_pain,
+            "Neck pain": neck_pain,
             "Arthritis": arthritis,
-            "Self_perceived_health_status": selfhea,
-            "Lung_disease": lung_disease,
-            "Waist_circumference": float(waist_circumference_raw),
+            "Self-perceived health status": selfhea,
+            "Lung disease": lung_disease,
+            "Waist-circumference": float(waist_circumference_raw),
         }
 
         # Create dataframe and scale numeric fields to match the model's expectations
@@ -430,13 +430,13 @@ def main():
         sample_df_unscaled = sample_df_unscaled[[c for c in feature_names]]
 
         # Transform numerics using scaler learned from training (unscaled -> scaled)
-        numerics = ["Waist_circumference"]  # Only Waist_circumference needs scaling
+        numerics = ["Waist-circumference"]  # Only Waist-circumference needs scaling
         scaled_values = sample_df_unscaled.copy()
         if numerics and scaler is not None:
             scaled_values[numerics] = scaler.transform(sample_df_unscaled[numerics])
         else:
             st.warning(
-                "Automatic standardization for Waist_circumference is not available. "
+                "Automatic standardization for Waist-circumference is not available. "
                 "Please enter standardized values (z-scores) directly."
             )
 

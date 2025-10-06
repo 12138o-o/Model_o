@@ -70,11 +70,11 @@ Enter the following 5 features:
 
 | Feature | Type | Values |
 |---------|------|--------|
-| Neck_pain | Binary | No(0) / Yes(1) |
+| Neck pain | Binary | No(0) / Yes(1) |
 | Arthritis | Binary | No(0) / Yes(1) |
-| Self_perceived_health_status | Ordinal | Poor(1) / Fair(2) / Good(3) |
-| Lung_disease | Binary | No(0) / Yes(1) |
-| Waist_circumference | Continuous | Centimeters (cm) |
+| Self-perceived health status | Ordinal | Poor(1) / Fair(2) / Good(3) |
+| Lung disease | Binary | No(0) / Yes(1) |
+| Waist-circumference | Continuous | Centimeters (cm) |
 
 ### Step 3: View Prediction Results
 
@@ -115,11 +115,11 @@ Gender: Female
 ✅ Click confirm, enter Step 2
 
 Step 2 Input:
-Neck_pain: Yes (1)
+Neck pain: Yes (1)
 Arthritis: Yes (1)
-Self_perceived_health_status: Fair (2)
-Lung_disease: No (0)
-Waist_circumference: 95.0 cm
+Self-perceived health status: Fair (2)
+Lung disease: No (0)
+Waist-circumference: 95.0 cm
 
 🔮 Click "Start Prediction"
 
@@ -163,11 +163,11 @@ Gender: Male
 ✅ Click confirm, enter Step 2
 
 Step 2 Input:
-Neck_pain: No (0)
+Neck pain: No (0)
 Arthritis: No (0)
-Self_perceived_health_status: Good (3)
-Lung_disease: No (0)
-Waist_circumference: 85 cm
+Self-perceived health status: Good (3)
+Lung disease: No (0)
+Waist-circumference: 85 cm
 
 🔮 Click "Start Prediction"
 
