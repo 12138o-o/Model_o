@@ -6,5 +6,6 @@ joblib>=1.2,<2
 shap>=0.43,<1
 matplotlib>=3.7,<4
 plotly>=5.0,<6
-
-
+lightgbm>=4.0,<5
+xgboost>=2.0,<3
+openpyxl>=3.0,<4
