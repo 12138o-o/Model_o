@@ -16,7 +16,7 @@ DISPLAY_TO_DATA = {
     "Neck pain": "Neck_pain",
     "Self-perceived health status": "Self_perceived_health_status",
     "Lung disease": "Lung_disease",
-    "Waist-circumference": "Waist_circumference"
+    "Waist circumference": "Waist_circumference"
 }
 
 # Reverse mapping: data column name -> display name
@@ -81,7 +81,7 @@ def load_variable_help() -> Dict[str, str]:
             "Arthritis": "Arthritis (0=No, 1=Yes)",
             "Self-perceived health status": "Self perceived health status (1=Poor, 2=Fair, 3=Good)",
             "Lung disease": "Lung disease (0=No, 1=Yes)",
-            "Waist-circumference": "Waist circumference (cm)"
+            "Waist circumference": "Waist circumference (cm)"
         }
         return default_help
     
@@ -110,7 +110,7 @@ def load_variable_help() -> Dict[str, str]:
         "Arthritis": "Arthritis (0=No, 1=Yes)",
         "Self-perceived health status": "Self perceived health status (1=Poor, 2=Fair, 3=Good)",
         "Lung disease": "Lung disease (0=No, 1=Yes)",
-        "Waist-circumference": "Waist circumference (cm)"
+        "Waist circumference": "Waist circumference (cm)"
     }
     return default_help
 
@@ -380,12 +380,12 @@ def main():
                 lung_disease = sb(1, "Lung disease", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
                 
                 waist_circumference_raw = cols[0].number_input(
-                    "Waist-circumference",
+                    "Waist circumference",
                     min_value=60.0,
                     max_value=170.0,
                     value=105.0,
                     step=0.1,
-                    help=variable_help.get("Waist-circumference", f"Waist circumference (cm), threshold: {threshold} cm"),
+                    help=variable_help.get("Waist circumference", f"Waist circumference (cm), threshold: {threshold} cm"),
                 )
                 
                 # Add unified comments above the prediction button
@@ -401,7 +401,7 @@ def main():
                     
                     **Lung disease**: Has a doctor ever told you that you have lung disease? (0=No, 1=Yes)
                     
-                    **Waist-circumference**: Waist circumference measured in centimeters (cm)
+                    **Waist circumference**: Waist circumference measured in centimeters (cm)
                     - Current threshold: {threshold} cm (based on {nationality} {gender})
                     - Model is designed for individuals with abdominal obesity
                     """)
