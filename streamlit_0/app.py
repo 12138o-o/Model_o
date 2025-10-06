@@ -11,6 +11,17 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from sklearn.preprocessing import StandardScaler
 
+# Variable name mapping: display name -> data column name
+DISPLAY_TO_DATA = {
+    "Neck pain": "Neck_pain",
+    "Self-perceived health status": "Self_perceived_health_status",
+    "Lung disease": "Lung_disease",
+    "Waist-circumference": "Waist_circumference"
+}
+
+# Reverse mapping: data column name -> display name
+DATA_TO_DISPLAY = {v: k for k, v in DISPLAY_TO_DATA.items()}
+
 # --------------------------------------------------------------------------------------
 # Paths and cached loaders
 # --------------------------------------------------------------------------------------
@@ -105,13 +116,13 @@ def load_variable_help() -> Dict[str, str]:
 
 
 def build_numeric_scaler(x_train_scaled: pd.DataFrame) -> Optional[StandardScaler]:
-    """Create a scaler for Waist-circumference (the only continuous variable).
+    """Create a scaler for Waist_circumference (the only continuous variable).
 
     Priority of sources for mean/std:
     1) data/X_train_notscaled.csv (if present with the expected columns)
     2) Approximate from known ranges using scaled min/max (last resort)
     """
-    target_cols = ["Waist-circumference"]
+    target_cols = ["Waist_circumference"]
 
     # 1) Preferred: explicit unscaled training data
     unscaled_path = DATA_DIR / "X_train_notscaled.csv"
@@ -415,13 +426,13 @@ def main():
             lung_disease = 0
             waist_circumference_raw = 105.0
 
-        # Prepare the single-row input in the exact feature order
+        # Prepare the single-row input in the exact feature order (using data column names)
         user_raw: Dict[str, float] = {
-            "Neck pain": neck_pain,
+            "Neck_pain": neck_pain,
             "Arthritis": arthritis,
-            "Self-perceived health status": selfhea,
-            "Lung disease": lung_disease,
-            "Waist-circumference": float(waist_circumference_raw),
+            "Self_perceived_health_status": selfhea,
+            "Lung_disease": lung_disease,
+            "Waist_circumference": float(waist_circumference_raw),
         }
 
         # Create dataframe and scale numeric fields to match the model's expectations
@@ -430,13 +441,13 @@ def main():
         sample_df_unscaled = sample_df_unscaled[[c for c in feature_names]]
 
         # Transform numerics using scaler learned from training (unscaled -> scaled)
-        numerics = ["Waist-circumference"]  # Only Waist-circumference needs scaling
+        numerics = ["Waist_circumference"]  # Only Waist_circumference needs scaling
         scaled_values = sample_df_unscaled.copy()
         if numerics and scaler is not None:
             scaled_values[numerics] = scaler.transform(sample_df_unscaled[numerics])
         else:
             st.warning(
-                "Automatic standardization for Waist-circumference is not available. "
+                "Automatic standardization for Waist_circumference is not available. "
                 "Please enter standardized values (z-scores) directly."
             )
 
@@ -528,6 +539,10 @@ def main():
                     # Use cached SHAP explainer (unified use of training set as background)
                     explainer = get_shap_explainer(model, x_train_scaled)
                     shap_values = explainer(scaled_values)
+                    
+                    # Rename feature names to display-friendly names for SHAP plot
+                    display_feature_names = [DATA_TO_DISPLAY.get(name, name) for name in shap_values.feature_names]
+                    shap_values.feature_names = display_feature_names
                     
                     # Waterfall plot centered and taking half width
                     col1, col2, col3 = st.columns([1, 2, 1])
