@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import shap
 import matplotlib
-matplotlib.use('Agg')  # 设置matplotlib后端为Agg（无头模式）
+matplotlib.use('Agg')  # Set matplotlib backend to Agg (headless mode)
 import matplotlib.pyplot as plt
 import streamlit as st
 from sklearn.preprocessing import StandardScaler
@@ -56,7 +56,7 @@ def load_variable_help() -> Dict[str, str]:
 
     Returns mapping: column_name -> help_text
     """
-    # 优先从streamlit目录读取Variable.xlsx
+    # First try to read Variable.xlsx from streamlit directory
     meta_path = DATA_DIR / "Variable .xlsx"
     if not meta_path.exists():
         meta_path = META_DIR / "Variable .xlsx"
@@ -75,9 +75,9 @@ def load_variable_help() -> Dict[str, str]:
         return default_help
     
     try:
-        # 尝试读取Excel文件
+        # Try to read Excel file
         rows = pd.read_excel(meta_path, header=None)
-        # 第一行是标题，从第二行开始提取变量名和描述
+        # First row is header, extract variable names and descriptions from second row onwards
         if len(rows) > 1:
             variable_dict = {
                 "Nationality": "Nationality (USA/China)",
@@ -89,9 +89,9 @@ def load_variable_help() -> Dict[str, str]:
                 variable_dict[var_name] = var_desc
             return variable_dict
     except Exception as e:
-        print(f"读取Variable.xlsx失败: {e}")
+        print(f"Failed to read Variable.xlsx: {e}")
     
-    # 如果失败，返回默认值
+    # If failed, return default values
     default_help = {
         "Nationality": "Nationality (USA/China)",
         "Gender": "Gender (0=Female, 1=Male)",
@@ -144,14 +144,14 @@ def build_numeric_scaler(x_train_scaled: pd.DataFrame) -> Optional[StandardScale
 
 
 def get_waist_threshold(nationality: str, gender: int) -> Tuple[float, str]:
-    """获取不同国籍和性别的腰围阈值
+    """Get waist circumference threshold for different nationalities and genders
     
     Args:
-        nationality: "USA" 或 "China"
+        nationality: "USA" or "China"
         gender: 0=Female, 1=Male
         
     Returns:
-        (threshold, message): 阈值和说明文字
+        (threshold, message): threshold value and description
     """
     if nationality == "USA":
         if gender == 1:  # Male
@@ -168,8 +168,8 @@ def get_waist_threshold(nationality: str, gender: int) -> Tuple[float, str]:
 @st.cache_resource(show_spinner=False)
 def get_shap_explainer(_model: object, x_train_scaled: pd.DataFrame):
     """Create and cache a SHAP explainer for the model with optimized background."""
-    # 使用k-means采样减少背景数据量，提高速度
-    background_size = min(1000, len(x_train_scaled))  # 限制背景样本数量
+    # Use k-means sampling to reduce background data volume and improve speed
+    background_size = min(1000, len(x_train_scaled))  # Limit background sample size
     background = shap.kmeans(x_train_scaled, background_size)
     return shap.KernelExplainer(lambda X: _model.predict_proba(X)[:, 1], background)
 
@@ -183,7 +183,7 @@ def render_title():
         initial_sidebar_state="collapsed",
     )
     
-    # 设置页面背景为浅蓝色，其他区域为米白色
+    # Set page background to light blue, other areas to off-white
     st.markdown("""
         <style>
         .stApp {
@@ -194,24 +194,24 @@ def render_title():
             padding: 20px;
             border-radius: 10px;
         }
-        /* 主要内容区域 */
+        /* Main content area */
         .main .block-container {
             background-color: #FEFDFB;
             padding: 2rem;
             border-radius: 10px;
         }
-        /* 输入框保持原始Streamlit默认样式 */
-        /* 展开框背景 */
+        /* Keep input boxes with original Streamlit default style */
+        /* Expander background */
         .streamlit-expanderHeader {
             background-color: #FEFDFB;
         }
-        /* Metric容器背景改为浅蓝色 */
+        /* Change metric container background to light blue */
         div[data-testid="stMetric"] {
             background-color: #E6F3FF !important;
             padding: 10px;
             border-radius: 8px;
         }
-        /* Metric标签和值的背景 */
+        /* Metric label and value background */
         div[data-testid="stMetricLabel"] {
             background-color: transparent !important;
         }
@@ -238,7 +238,7 @@ def main():
         variable_help = load_variable_help()
         scaler = build_numeric_scaler(x_train_scaled)
 
-        # 显示数据加载状态
+        # Display data loading status
         if x_charls_scaled is not None:
             st.sidebar.success(f"✅ External validation data loaded: {len(x_charls_scaled)} samples (China)")
         else:
@@ -256,7 +256,7 @@ def main():
             st.subheader("Patient Information Input")
             st.markdown("### 📋 Step 1: Population Screening")
             
-            # 第一行：年龄分组
+            # First row: Age group
             age_group = st.selectbox(
                 "Age Group",
                 options=["≥45 years (Middle-aged and elderly)", "<45 years (Younger adults)"],
@@ -265,7 +265,7 @@ def main():
             )
             is_middle_aged = age_group.startswith("≥45")
             
-            # 第二行：国籍和性别
+            # Second row: Nationality and gender
             col_demo1, col_demo2 = st.columns(2)
             with col_demo1:
                 nationality = st.selectbox(
@@ -283,10 +283,10 @@ def main():
                 )
                 gender_value = 0 if gender == "Female (0)" else 1
             
-            # 计算腰围阈值（用于后续验证和帮助文本）
+            # Calculate waist circumference threshold (for subsequent validation and help text)
             threshold, threshold_msg = get_waist_threshold(nationality, gender_value)
             
-            # 重要说明
+            # Important note
             st.info("""
 ℹ️ **Important Note:**
 - **Age Group and Nationality/Gender** are used only for **population screening** and **waist circumference threshold determination**.
@@ -295,11 +295,11 @@ def main():
 - Age and nationality help ensure the model is applied to the appropriate population.
             """)
             
-            # 显示年龄适用性提示
+            # Display age applicability warning
             if not is_middle_aged:
                 st.warning("⚠️ **Warning**: Age <45 years selected. You will NOT be able to make predictions. Please select ≥45 years to continue.")
             
-            # 显示腰围标准提示
+            # Display waist circumference standards
             st.info(f"""
 📏 **Abdominal Obesity Standards:**
 - 🇺🇸 USA: Male ≥102 cm, Female ≥88 cm
@@ -308,7 +308,7 @@ def main():
 **Your current threshold**: {threshold} cm for {nationality} {gender.split('(')[0].strip()}
             """)
             
-            # Step 1 确认按钮
+            # Step 1 confirmation button
             st.markdown("---")
             confirm_eligibility = st.form_submit_button(
                 "✅ Confirm Eligibility and Continue" if is_middle_aged else "❌ Age <45 - Cannot Continue",
@@ -316,7 +316,7 @@ def main():
                 use_container_width=True
             )
         
-        # 使用session state保存确认状态
+        # Use session state to save confirmation status
         if confirm_eligibility and is_middle_aged:
             st.session_state.eligibility_confirmed = True
             st.session_state.nationality = nationality
@@ -326,9 +326,9 @@ def main():
             st.session_state.age_group = age_group
         
         # ==================== Step 2: Clinical Features Input ====================
-        # 只有确认资格后才显示Step 2
+        # Only display Step 2 after eligibility confirmation
         if st.session_state.get('eligibility_confirmed', False):
-            # 从session state读取筛选信息
+            # Read screening information from session state
             nationality = st.session_state.nationality
             gender = st.session_state.gender
             gender_value = st.session_state.gender_value
@@ -340,10 +340,10 @@ def main():
                 st.markdown("### 🩺 Step 2: Clinical Features Input")
                 st.caption("Enter the patient's clinical characteristics below.")
                 
-                # 显示已确认的人群信息
+                # Display confirmed population information
                 st.success(f"✅ **Confirmed**: {age_group} | {nationality} {gender.split('(')[0].strip()} | Waist threshold: {threshold} cm")
                 
-                # 其他特征输入
+                # Other feature inputs
                 cols = st.columns(2)
 
                 # Utility for selectboxes
@@ -357,7 +357,7 @@ def main():
                     )
                     return options[choice]
 
-                # Inputs - 5个特征
+                # Inputs - 5 features
                 neck_pain = sb(0, "Neck_pain", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
                 arthritis = sb(1, "Arthritis", {"No (0)": 0, "Yes (1)": 1}, "No (0)")
                 selfhea = sb(
@@ -405,9 +405,9 @@ def main():
                     st.session_state.eligibility_confirmed = False
                     st.rerun()
         else:
-            # 如果还没确认资格，显示提示
+            # If eligibility not confirmed, display prompt
             st.info("👆 **Please complete Step 1: Population Screening and click 'Confirm Eligibility and Continue' to proceed.**")
-            # 设置默认值避免后续代码报错
+            # Set default values to avoid errors in subsequent code
             submitted = False
             neck_pain = 0
             arthritis = 0
@@ -441,24 +441,24 @@ def main():
             )
 
         if submitted:
-            # 首先检查年龄是否符合要求
+            # First check if age meets requirements
             if not is_middle_aged:
                 st.error("❌ **Cannot Make Prediction**")
                 st.warning(
-                    f"⚠️ **Age group (<45 years) does not meet the model requirements.**\n\n"
-                    f"This model is specifically designed for **middle-aged and elderly people (≥45 years)**. "
-                    f"The training and validation data only included participants aged 45 years and above.\n\n"
-                    f"**Why age matters:**\n"
-                    f"- Risk factors for low back pain differ significantly between age groups\n"
-                    f"- The model was trained on middle-aged and elderly populations\n"
-                    f"- Predictions for younger adults (<45 years) may not be reliable or accurate\n\n"
-                    f"**Recommendation:**\n"
-                    f"Please select **'≥45 years (Middle-aged and elderly)'** if the patient is 45 years or older.\n\n"
-                    f"For younger adults, please consult appropriate clinical guidelines or models designed for that age group."
+                    "⚠️ **Age group (<45 years) does not meet the model requirements.**\n\n"
+                    "This model is specifically designed for **middle-aged and elderly people (≥45 years)**. "
+                    "The training and validation data only included participants aged 45 years and above.\n\n"
+                    "**Why age matters:**\n"
+                    "- Risk factors for low back pain differ significantly between age groups\n"
+                    "- The model was trained on middle-aged and elderly populations\n"
+                    "- Predictions for younger adults (<45 years) may not be reliable or accurate\n\n"
+                    "**Recommendation:**\n"
+                    "Please select **'≥45 years (Middle-aged and elderly)'** if the patient is 45 years or older.\n\n"
+                    "For younger adults, please consult appropriate clinical guidelines or models designed for that age group."
                 )
-                st.stop()  # 停止执行，不显示预测结果
+                st.stop()  # Stop execution, do not display prediction results
             
-            # 然后检查腰围是否达到腹型肥胖标准
+            # Then check if waist circumference meets abdominal obesity criteria
             if waist_circumference_raw < threshold:
                 st.error("❌ **Cannot Make Prediction**")
                 st.warning(
@@ -471,28 +471,28 @@ def main():
                     f"- 🇨🇳 China: Male ≥90 cm, Female ≥85 cm\n\n"
                     f"Please ensure the waist circumference meets the appropriate threshold before proceeding."
                 )
-                st.stop()  # 停止执行，不显示预测结果
+                st.stop()  # Stop execution, do not display prediction results
             
-            # 显示年龄和腰围都达标的提示
+            # Display confirmation that both age and waist circumference meet criteria
             st.success("✅ **Eligibility Confirmed**")
             st.info(
                 f"✓ Age: ≥45 years (Middle-aged and elderly)\n\n"
                 f"✓ Waist circumference: {waist_circumference_raw:.1f} cm (≥{threshold} cm for {nationality} {gender.split('(')[0].strip()})"
             )
             
-            # 使用最准确有效的预测概率方法
+            # Use the most accurate and effective prediction probability method
             try:
-                # 直接使用模型的predict_proba方法
+                # Directly use the model's predict_proba method
                 proba = float(model.predict_proba(scaled_values)[0, 1])
                 predicted_class = int(proba >= 0.5)
             except Exception as e:
-                st.error(f"预测失败: {e}")
+                st.error(f"Prediction failed: {e}")
                 return
 
             # Display prediction results
             st.subheader("Prediction Results")
             
-            # 显示患者信息
+            # Display patient information
             st.markdown(f"**Patient Profile**: {nationality} {gender} with waist circumference {waist_circumference_raw:.1f} cm")
             
             # Use more intuitive display method
@@ -510,7 +510,7 @@ def main():
                 
                 st.info(f"Detailed Probability: At Risk {proba:.1%} | Low Risk {(1.0-proba):.1%}")
             
-            # 模型适用性提示
+            # Model applicability note
             if nationality == "China":
                 if x_charls_scaled is not None:
                     st.info("ℹ️ **Model Note**: This model was trained on USA population data (NHANES). "
@@ -525,25 +525,25 @@ def main():
             st.subheader("SHAP Feature Importance Explanation")
             with st.spinner("Calculating SHAP explanation..."):
                 try:
-                    # 使用缓存的SHAP explainer（统一使用训练集作为背景）
+                    # Use cached SHAP explainer (unified use of training set as background)
                     explainer = get_shap_explainer(model, x_train_scaled)
                     shap_values = explainer(scaled_values)
                     
                     # Waterfall plot centered and taking half width
                     col1, col2, col3 = st.columns([1, 2, 1])
                     with col2:
-                        # 确保matplotlib使用Agg后端（无头模式）
+                        # Ensure matplotlib uses Agg backend (headless mode)
                         plt.switch_backend('Agg')
                         shap.plots.waterfall(shap_values[0], max_display=10, show=False)
                         fig = plt.gcf()
                         st.pyplot(fig, use_container_width=True)
-                        plt.close(fig)  # 清理图形避免内存泄漏
+                        plt.close(fig)  # Clean up figure to avoid memory leak
                     
                     # Add explanation
                     st.info("💡 SHAP plot shows the contribution of each feature to the prediction result. Positive values indicate increased risk, negative values indicate decreased risk.")
                 except Exception as e:
-                    st.error(f"SHAP分析失败: {e}")
-                    st.info("请检查模型和数据是否正确加载。")
+                    st.error(f"SHAP analysis failed: {e}")
+                    st.info("Please check if model and data are loaded correctly.")
 
             st.warning("⚠️ Important Reminder: This tool provides data-driven estimates and should not replace professional medical advice.")
 

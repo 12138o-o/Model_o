@@ -1,0 +1,12 @@
+{
+    "python.defaultInterpreterPath": "D:\\ProgramData\\Anaconda3\\python.exe",
+    "python.analysis.extraPaths": [
+        "D:\\ProgramData\\Anaconda3\\Lib\\site-packages"
+    ],
+    "python.autoComplete.extraPaths": [
+        "D:\\ProgramData\\Anaconda3\\Lib\\site-packages"
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.languageServer": "Pylance"
+}
+
